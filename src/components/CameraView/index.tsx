@@ -4,7 +4,7 @@ import { Button,  Text, TouchableOpacity, View , Modal,Image} from 'react-native
 import {styles} from './styles'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { height, width } from '@fortawesome/free-brands-svg-icons/fa42Group';
+
 export default function CameraV() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
@@ -36,6 +36,7 @@ export default function CameraV() {
         const data = await camRef.current.takePictureAsync();
 
         setCapturedPhoto(data.uri)
+        setModalIsOpen(true)
         
     }
   }
@@ -57,6 +58,9 @@ export default function CameraV() {
                 {capturedPhoto && (
                     <Modal animationType='slide' transparent={false} visible={modalIsOpen}>
                         <View style={{flex:1,justifyContent:"center",alignItems:"center",margin:20}}>
+                            <TouchableOpacity style={{margin:10}} onPress={()=>{setModalIsOpen(false)}}>
+                                <Text>X</Text>
+                            </TouchableOpacity>
                             <Image style={{width:"100%",height:300,borderRadius:20}} source={{uri:capturedPhoto}}></Image>
                         </View>
                     </Modal>  

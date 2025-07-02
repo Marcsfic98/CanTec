@@ -1,6 +1,7 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState , useRef } from 'react';
+import { useState , useRef, useEffect } from 'react';
 import { Button,  Text, TouchableOpacity, View , Modal,Image} from 'react-native';
+import * as MediaLibrary from "expo-media-library"
 import {styles} from './styles'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -8,14 +9,22 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 export default function CameraV() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+  const [mediaPermission , setMediaPermission] = useState<boolean>(false);
 
-  const [capturedPhoto , setCapturedPhoto]= useState<string | null>()
-  const [modalIsOpen , setModalIsOpen] = useState<boolean>(false)
+  useEffect(()=>{
+    (async()=>{
+        const {status} = await MediaLibrary.requestPermissionsAsync();
+        setMediaPermission(status === "granted")
+    })();
+  },[])
 
-  const camRef = useRef<CameraView>(null)
+  const [capturedPhoto , setCapturedPhoto]= useState<string | null>();
+  const [modalIsOpen , setModalIsOpen] = useState<boolean>(false);
+
+  const camRef = useRef<CameraView>(null);
 
   if (!permission) {
-    return <View />;
+    return <View><Text>Não tem permissão de Camera</Text></View>;
   }
 
   if (!permission.granted) {
@@ -32,18 +41,32 @@ export default function CameraV() {
   }
 
   async function takePicture() {
+
+    const options = {quality:1};
+
     if(camRef && camRef.current){
         const data = await camRef.current.takePictureAsync();
 
-        setCapturedPhoto(data.uri)
-        setModalIsOpen(true)
+        setCapturedPhoto(data.uri);
+        setModalIsOpen(true);
         
     }
   }
 
+  async function  savePicture(){
+    if(capturedPhoto != null){
+        MediaLibrary.saveToLibraryAsync(capturedPhoto).then(()=>{
+            setCapturedPhoto(null);
+        })
+    }
+  }
+
+  if(mediaPermission === false || null){
+    return <View><Text>Não tem permissão de midia</Text></View>
+  }
   return (
     <View style={styles.container}>
-      <CameraView ratio='16:9' style={styles.camera} facing={facing} ref={camRef}>
+      <CameraView  ratio='16:9' style={styles.camera} facing={facing} ref={camRef}>
         <View style={styles.buttonContainer}>
 
                  <TouchableOpacity style={styles.button} onPress={takePicture}>
@@ -58,10 +81,16 @@ export default function CameraV() {
                 {capturedPhoto && (
                     <Modal animationType='slide' transparent={false} visible={modalIsOpen}>
                         <View style={{flex:1,justifyContent:"center",alignItems:"center",margin:20}}>
-                            <TouchableOpacity style={{margin:10}} onPress={()=>{setModalIsOpen(false)}}>
-                                <Text>X</Text>
-                            </TouchableOpacity>
-                            <Image style={{width:"100%",height:300,borderRadius:20}} source={{uri:capturedPhoto}}></Image>
+                            <View style={{flexDirection:"row"}}>
+                                <TouchableOpacity style={{margin:10}} onPress={()=>{setModalIsOpen(false)}}>
+                                     <Text>X</Text>
+                                </TouchableOpacity >
+
+                                <TouchableOpacity style={{margin:10}} onPress={()=>{savePicture()}}>
+                                    <Text>Save</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Image style={{width:"100%",height:"80%",borderRadius:20}} source={{uri:capturedPhoto}}></Image>
                         </View>
                     </Modal>  
                 )}  

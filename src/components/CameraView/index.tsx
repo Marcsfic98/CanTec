@@ -88,13 +88,13 @@ export default function CameraV() {
                 {capturedPhoto && (
                     <Modal animationType='slide' transparent={false} visible={modalIsOpen}>
                         <View style={{flex:1,justifyContent:"center",alignItems:"center",margin:20}}>
-                            <View style={{flexDirection:"row"}}>
-                                <TouchableOpacity style={{margin:10}} onPress={()=>{setModalIsOpen(false)}}>
-                                     <Text>X</Text>
+                            <View style={{flexDirection:"row" }}>
+                                <TouchableOpacity style={{margin:20}} onPress={()=>{setModalIsOpen(false)}}>
+                                     <FontAwesome6 name="window-close" size={24} color="black" />
                                 </TouchableOpacity >
 
-                                <TouchableOpacity style={{margin:10}} onPress={()=>{savePicture()}}>
-                                    <Text>Save</Text>
+                                <TouchableOpacity style={{margin:20}} onPress={()=>{savePicture()}}>
+                                    <MaterialIcons name="save-alt" size={24} color="black" />
                                 </TouchableOpacity>
                             </View>
                             <Image style={{width:"100%",height:"80%",borderRadius:20}} source={{uri:capturedPhoto}}></Image>

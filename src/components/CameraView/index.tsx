@@ -42,7 +42,6 @@ export default function CameraV() {
 
   async function takePicture() {
 
-    const options = {quality:1};
 
     if(camRef && camRef.current){
         const data = await camRef.current.takePictureAsync();
@@ -53,11 +52,19 @@ export default function CameraV() {
     }
   }
 
+  async function  saveToAlbum(uri:string , album:string) {
+    const asset = await MediaLibrary.createAssetAsync(uri);
+    await MediaLibrary.createAlbumAsync(album , asset)
+  }
+
   async function  savePicture(){
     if(capturedPhoto != null){
-        MediaLibrary.saveToLibraryAsync(capturedPhoto).then(()=>{
-            setCapturedPhoto(null);
-        })
+
+        await saveToAlbum(capturedPhoto , "hotweels")
+
+       // MediaLibrary.saveToLibraryAsync(capturedPhoto).then(()=>{
+       //     setCapturedPhoto(null);
+       // })
     }
   }
 
